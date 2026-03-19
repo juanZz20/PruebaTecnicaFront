@@ -1,6 +1,7 @@
 import React from 'react';
 
-const TablaUsuarios = ({ usuarios, alEliminar }) => {
+
+const TablaUsuarios = ({ usuarios, alEliminar, alEditar }) => {
     return (
         <table className="tabla-manolo">
             <thead>
@@ -19,8 +20,23 @@ const TablaUsuarios = ({ usuarios, alEliminar }) => {
                         <td>{u.nombre} {u.apellidos}</td>
                         <td>{u.edad} años</td>
                         <td>{u.telefono}</td>
-                        <td>
-                            <button onClick={() => alEliminar(u.id)} className="btn-borrar">Eliminar</button>
+                        <td className="celda-acciones">
+                            {/* BOTÓN EDITAR */}
+                            <button
+                                onClick={() => alEditar(u)}
+                                className="btn-editar"
+                                style={{ marginRight: '8px', backgroundColor: '#3498db', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                            >
+                                Editar
+                            </button>
+
+                            {/* BOTÓN ELIMINAR */}
+                            <button
+                                onClick={() => alEliminar(u.id)}
+                                className="btn-borrar"
+                            >
+                                Eliminar
+                            </button>
                         </td>
                     </tr>
                 ))}

@@ -7,14 +7,18 @@ import './App.css';
 function App() {
   const [usuarios, setusuarios] = useState([]);
   const [estaLogueado, setEstaLogueado] = useState(false);
+
+  // Estado para el formulario
   const [nuevo, setNuevo] = useState({
     cedula: '',
     nombre: '',
     apellidos: '',
     telefono: '',
     fechaNacimiento: '',
-    direccion: '' 
+    direccion: ''
   });
+
+  const [editandoId, setEditandoId] = useState(null);
 
   const cargarDatos = async () => {
     try {
@@ -31,25 +35,54 @@ function App() {
     }
   }, [estaLogueado]);
 
-  const manejarGuardar = async (u) => {
-    u.preventDefault();
+
+  const prepararEdicion = (usuario) => {
+    setEditandoId(usuario.cedula); 
+    setNuevo({
+      cedula: usuario.cedula,
+      nombre: usuario.nombre,
+      apellidos: usuario.apellidos,
+      telefono: usuario.telefono,
+      fechaNacimiento: usuario.fechaNacimiento,
+      direccion: usuario.direccion || ''
+    });
+  };
+
+
+  const cancelarEdicion = () => {
+    setEditandoId(null);
+    setNuevo({ cedula: '', nombre: '', apellidos: '', telefono: '', fechaNacimiento: '', direccion: '' });
+  };
+
+  const manejarSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await apiService.crearUsuarios(nuevo);
-      alert("Contacto guardado con éxito");
-      cargarDatos(); 
-      setNuevo({ cedula: '', nombre: '', apellidos: '', telefono: '', fechaNacimiento: '', direccion: '' });
+      if (editandoId) {
+        
+        await apiService.editarUsuarios(nuevo);
+        alert("Contacto actualizado con éxito");
+      } else {
+        await apiService.crearUsuarios(nuevo);
+        alert("Contacto guardado con éxito");
+      }
+
+      cancelarEdicion();
+      cargarDatos();    
     } catch (error) {
-      alert("Error al guardar el contacto");
+      alert("Error al procesar la solicitud");
     }
   };
 
   const manejarEliminar = async (id) => {
     if (window.confirm("¿Seguro que quieres eliminar este contacto?")) {
-      await apiService.eliminarUsuarios(id);
-      cargarDatos();
+      try {
+        await apiService.eliminarUsuarios(id);
+        cargarDatos();
+      } catch (error) {
+        alert("Error al eliminar");
+      }
     }
   };
-
 
   if (!estaLogueado) {
     return <Login alLoguear={setEstaLogueado} />;
@@ -60,24 +93,37 @@ function App() {
       <h1>Panel Administrativo - Manolo Limitada</h1>
 
       <div className="card-formulario">
-        <h3>Registrar Nuevo Contacto</h3>
-        <form onSubmit={manejarGuardar} className="formulario-grid">
+      
+        <h3>{editandoId ? 'Editar Contacto' : 'Registrar Nuevo Contacto'}</h3>
+
+        <form onSubmit={manejarSubmit} className="formulario-grid">
           <input type="text" placeholder="Cédula" value={nuevo.cedula}
-            onChange={u => setNuevo({ ...nuevo, cedula: u.target.value })} required />
+            onChange={e => setNuevo({ ...nuevo, cedula: e.target.value })}
+            required disabled={!!editandoId} /> {/* Bloqueamos la cédula si es edición */}
 
           <input type="text" placeholder="Nombre" value={nuevo.nombre}
-            onChange={u => setNuevo({ ...nuevo, nombre: u.target.value })} required />
+            onChange={e => setNuevo({ ...nuevo, nombre: e.target.value })} required />
 
           <input type="text" placeholder="Apellidos" value={nuevo.apellidos}
-            onChange={u => setNuevo({ ...nuevo, apellidos: u.target.value })} required />
+            onChange={e => setNuevo({ ...nuevo, apellidos: e.target.value })} required />
 
           <input type="text" placeholder="Teléfono" value={nuevo.telefono}
-            onChange={u => setNuevo({ ...nuevo, telefono: u.target.value })} required />
+            onChange={e => setNuevo({ ...nuevo, telefono: e.target.value })} required />
 
           <input type="date" value={nuevo.fechaNacimiento}
-            onChange={u => setNuevo({ ...nuevo, fechaNacimiento: u.target.value })} required />
+            onChange={e => setNuevo({ ...nuevo, fechaNacimiento: e.target.value })} required />
 
-          <button type="submit" className="btn-guardar">Guardar Contacto</button>
+          <div className="botones-form">
+            <button type="submit" className="btn-guardar">
+              {editandoId ? 'Actualizar' : 'Guardar'}
+            </button>
+
+            {editandoId && (
+              <button type="button" onClick={cancelarEdicion} className="btn-cancelar">
+                Cancelar
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -85,7 +131,11 @@ function App() {
         <button onClick={cargarDatos} className="btn-refresh">🔄 Actualizar Lista</button>
       </div>
 
-      <Tablausuarios usuarios={usuarios} alEliminar={manejarEliminar} />
+      <Tablausuarios
+        usuarios={usuarios}
+        alEliminar={manejarEliminar}
+        alEditar={prepararEdicion}
+      />
     </div>
   );
 }
