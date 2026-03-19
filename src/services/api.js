@@ -30,12 +30,12 @@ export const apiService = {
         await fetch(`${BASE_URL}/api/usuarios/${id}`, { method: 'DELETE' });
     },
 
-    editarUsuarios: async (id) =>{
-        await fetch(`${BASE_URL}/usuarios/${id}`, {
-            method: `PUT`,
+    editarUsuarios: async (id, usuario) => {
+        const response = await fetch(`${BASE_URL}/api/usuarios/${id}`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(usuario)
-        })
-
+        });
+        return response.json();
     }
 };
