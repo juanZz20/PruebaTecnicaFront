@@ -37,8 +37,8 @@ login: async (Nombre, Cedula) => {
         await fetch(`${BASE_URL}/api/usuarios/${id}`, { method: 'DELETE' });
     },
 
-    editarUsuarios: async (id, usuario) => {
-        const response = await fetch(`${BASE_URL}/api/usuarios/${id}`, {
+    editarUsuarios: async (cedula, usuario) => {
+        const response = await fetch(`${BASE_URL}/api/usuarios/${cedula}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(usuario)

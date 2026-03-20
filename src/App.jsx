@@ -43,7 +43,7 @@ function App() {
       nombre: usuario.nombre,
       apellidos: usuario.apellidos,
       telefono: usuario.telefono,
-      fechaNacimiento: usuario.fechaNacimiento,
+      fechaNacimiento: usuario.fechaNacimiento.split('T'),
       direccion: usuario.direccion || ''
     });
   };
@@ -59,7 +59,7 @@ function App() {
     try {
       if (editandoId) {
         
-        await apiService.editarUsuarios(nuevo);
+        await apiService.editarUsuarios(editandoId,nuevo);
         alert("Contacto actualizado con éxito");
       } else {
         await apiService.crearUsuarios(nuevo);
