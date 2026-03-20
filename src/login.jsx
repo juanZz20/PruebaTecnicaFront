@@ -35,6 +35,7 @@ const Login = ({ alLoguear }) => {
 
                 <input
                     type="text"
+                    //se que eso no debe ir pero es para saber cual es el usuario y no estar viendo en el backend
                     placeholder="Usuario (manolo)"
                     value={credenciales.Nombre}
                     onChange={e => setCredenciales({ ...credenciales, Nombre: e.target.value })}
@@ -42,6 +43,7 @@ const Login = ({ alLoguear }) => {
 
                 <input
                     type="password"
+                    //se que eso no debe ir pero es para saber cual es la clave y no estar viendo en el backend
                     placeholder="Clave (1234)"
                     value={credenciales.Cedula}
                     onChange={e => setCredenciales({ ...credenciales, Cedula: e.target.value })}
