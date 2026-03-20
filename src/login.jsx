@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { apiService } from './services/api';
+import './Login.css';
 
 const Login = ({ alLoguear }) => {
     const [credenciales, setCredenciales] = useState({ Nombre: '', Cedula: '' });
@@ -28,24 +29,26 @@ const Login = ({ alLoguear }) => {
     };
 
     return (
-        <div className="login-box">
-            <h2>Acceso Administrativo</h2>
+        <div className="login-container"> 
+            <div className="login-box">
+                <h2>Acceso Administrativo</h2>
 
-            <input
-                type="text"
-                placeholder="Usuario (manolo)"
-                value={credenciales.Nombre}
-                onChange={e => setCredenciales({ ...credenciales, Nombre: e.target.value })}
-            />
+                <input
+                    type="text"
+                    placeholder="Usuario (manolo)"
+                    value={credenciales.Nombre}
+                    onChange={e => setCredenciales({ ...credenciales, Nombre: e.target.value })}
+                />
 
-            <input
-                type="password"
-                placeholder="Clave (1234)"
-                value={credenciales.Cedula}
-                onChange={e => setCredenciales({ ...credenciales, Cedula: e.target.value })}
-            />
+                <input
+                    type="password"
+                    placeholder="Clave (1234)"
+                    value={credenciales.Cedula}
+                    onChange={e => setCredenciales({ ...credenciales, Cedula: e.target.value })}
+                />
 
-            <button onClick={entrar}>Entrar</button>
+                <button onClick={entrar}>Entrar</button>
+            </div>
         </div>
     );
 };
