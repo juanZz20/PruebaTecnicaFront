@@ -7,8 +7,8 @@ import './App.css';
 function App() {
   const [usuarios, setusuarios] = useState([]);
   const [estaLogueado, setEstaLogueado] = useState(false);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false); // Estado para ocultar/mostrar
 
-  // Estado para el formulario
   const [nuevo, setNuevo] = useState({
     cedula: '',
     nombre: '',
@@ -30,14 +30,12 @@ function App() {
   };
 
   useEffect(() => {
-    if (estaLogueado) {
-      cargarDatos();
-    }
+    if (estaLogueado) cargarDatos();
   }, [estaLogueado]);
 
-
   const prepararEdicion = (usuario) => {
-    setEditandoId(usuario.cedula); 
+    setEditandoId(usuario.cedula);
+    setMostrarFormulario(true); // Abrimos el form al editar
     setNuevo({
       cedula: usuario.cedula,
       nombre: usuario.nombre,
@@ -48,9 +46,9 @@ function App() {
     });
   };
 
-
   const cancelarEdicion = () => {
     setEditandoId(null);
+    setMostrarFormulario(false);
     setNuevo({ cedula: '', nombre: '', apellidos: '', telefono: '', fechaNacimiento: '', direccion: '' });
   };
 
@@ -58,84 +56,85 @@ function App() {
     e.preventDefault();
     try {
       if (editandoId) {
-        
-        await apiService.editarUsuarios(editandoId,nuevo);
-        alert("Contacto actualizado con éxito");
+        await apiService.editarUsuarios(editandoId, nuevo);
       } else {
         await apiService.crearUsuarios(nuevo);
-        alert("Contacto guardado con éxito");
       }
-
       cancelarEdicion();
-      cargarDatos();    
+      cargarDatos();
     } catch (error) {
       alert("Error al procesar la solicitud");
     }
   };
 
-  const manejarEliminar = async (id) => {
-    if (window.confirm("¿Seguro que quieres eliminar este contacto?")) {
-      try {
-        await apiService.eliminarUsuarios(id);
-        cargarDatos();
-      } catch (error) {
-        alert("Error al eliminar");
-      }
-    }
-  };
-
-  if (!estaLogueado) {
-    return <Login alLoguear={setEstaLogueado} />;
-  }
+  if (!estaLogueado) return <Login alLoguear={setEstaLogueado} />;
 
   return (
-    <div className="container">
-      <h1>Panel Administrativo - Manolo Limitada</h1>
+    <div className="app-wrapper">
+      <div className="container">
+        <header className="main-header">
+          <h1>PANEL ADMINISTRATIVO</h1>
+          <p>Manolo Limitada</p>
+        </header>
 
-      <div className="card-formulario">
-      
-        <h3>{editandoId ? 'Editar Contacto' : 'Registrar Nuevo Contacto'}</h3>
+        <div className="toolbar">
+          <button
+            className="btn-primary"
+            onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          >
+            {mostrarFormulario ? '✕ Cerrar' : '＋ Nuevo Registro'}
+          </button>
 
-        <form onSubmit={manejarSubmit} className="formulario-grid">
-          <input type="text" placeholder="Cédula" value={nuevo.cedula}
-            onChange={e => setNuevo({ ...nuevo, cedula: e.target.value })}
-            required disabled={!!editandoId} /> {/* Bloqueamos la cédula si es edición */}
+          <button onClick={cargarDatos} className="btn-secondary">
+            ↻ Actualizar Lista
+          </button>
+        </div>
 
-          <input type="text" placeholder="Nombre" value={nuevo.nombre}
-            onChange={e => setNuevo({ ...nuevo, nombre: e.target.value })} required />
+        {mostrarFormulario && (
+          <div className="card-formulario">
+            <h3>{editandoId ? 'EDITAR CONTACTO' : 'REGISTRAR NUEVO'}</h3>
+            <form onSubmit={manejarSubmit} className="formulario-grid">
+              <input type="text" placeholder="Cédula" value={nuevo.cedula}
+                onChange={e => setNuevo({ ...nuevo, cedula: e.target.value })}
+                required disabled={!!editandoId} />
 
-          <input type="text" placeholder="Apellidos" value={nuevo.apellidos}
-            onChange={e => setNuevo({ ...nuevo, apellidos: e.target.value })} required />
+              <input type="text" placeholder="Nombre" value={nuevo.nombre}
+                onChange={e => setNuevo({ ...nuevo, nombre: e.target.value })} required />
 
-          <input type="text" placeholder="Teléfono" value={nuevo.telefono}
-            onChange={e => setNuevo({ ...nuevo, telefono: e.target.value })} required />
+              <input type="text" placeholder="Apellidos" value={nuevo.apellidos}
+                onChange={e => setNuevo({ ...nuevo, apellidos: e.target.value })} required />
 
-          <input type="date" value={nuevo.fechaNacimiento}
-            onChange={e => setNuevo({ ...nuevo, fechaNacimiento: e.target.value })} required />
+              <input type="text" placeholder="Teléfono" value={nuevo.telefono}
+                onChange={e => setNuevo({ ...nuevo, telefono: e.target.value })} required />
 
-          <div className="botones-form">
-            <button type="submit" className="btn-guardar">
-              {editandoId ? 'Actualizar' : 'Guardar'}
-            </button>
+              <input type="date" value={nuevo.fechaNacimiento}
+                onChange={e => setNuevo({ ...nuevo, fechaNacimiento: e.target.value })} required />
 
-            {editandoId && (
-              <button type="button" onClick={cancelarEdicion} className="btn-cancelar">
-                Cancelar
-              </button>
-            )}
+              <div className="botones-form">
+                <button type="submit" className="btn-dark">
+                  {editandoId ? 'ACTUALIZAR' : 'GUARDAR'}
+                </button>
+                <button type="button" onClick={cancelarEdicion} className="btn-dark">
+                  CANCELAR
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </div>
+        )}
 
-      <div className="acciones-header">
-        <button onClick={cargarDatos} className="btn-refresh">🔄 Actualizar Lista</button>
+        <div className="table-container">
+          <Tablausuarios
+            usuarios={usuarios}
+            alEliminar={async (id) => {
+              if (window.confirm("¿Eliminar registro?")) {
+                await apiService.eliminarUsuarios(id);
+                cargarDatos();
+              }
+            }}
+            alEditar={prepararEdicion}
+          />
+        </div>
       </div>
-
-      <Tablausuarios
-        usuarios={usuarios}
-        alEliminar={manejarEliminar}
-        alEditar={prepararEdicion}
-      />
     </div>
   );
 }

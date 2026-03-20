@@ -1,6 +1,7 @@
 import React from 'react';
 
 
+
 const TablaUsuarios = ({ usuarios, alEliminar, alEditar }) => {
     return (
         <table className="tabla-manolo">
@@ -33,7 +34,9 @@ const TablaUsuarios = ({ usuarios, alEliminar, alEditar }) => {
                             {/* BOTÓN ELIMINAR */}
                             <button
                                 onClick={() => alEliminar(u.id)}
-                                className="btn-borrar"
+                                className="btn-eliminar"
+                                style={{ marginRight: '8px', backgroundColor: '#e41d1d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+
                             >
                                 Eliminar
                             </button>
