@@ -2,26 +2,52 @@ import React, { useState } from 'react';
 import { apiService } from './services/api';
 
 const Login = ({ alLoguear }) => {
-    const [credenciales, setCredenciales] = useState({ cedula: '', password: '' });
+    const [credenciales, setCredenciales] = useState({ Nombre: '', Cedula: '' });
 
     const entrar = async () => {
-      
-        const res = await apiService.login(credenciales.cedula, credenciales.password);
-        console.log("Respuesta de la API:", res);
-        if (res && !res.error) {
-            alLoguear(true);
-        } else {
-            alert("Acceso denegado: Usuario o clave incorrectos");
+        if (!credenciales.Nombre.trim() || !credenciales.Cedula.trim()) {
+            alert("Por favor, completa todos los campos");
+            return;
+        }
+
+        try {
+            const res = await apiService.login(
+                credenciales.Nombre,
+                credenciales.Cedula
+            );
+            console.log("Respuesta:", res);
+            if (res.rol === "Admin") {
+                alLoguear(true);
+            } else {
+                throw new Error("Credenciales incorrectas");
+            }
+
+        } catch (error) {
+            alert("Acceso denegado: " + error.message);
         }
     };
 
     return (
         <div className="login-box">
             <h2>Acceso Administrativo</h2>
-            <input type="text" placeholder="Usuario (manolo)" onChange={e => setCredenciales({...credenciales, cedula: e.target.value})} />
-            <input type="password" placeholder="Clave (1234)" onChange={e => setCredenciales({...credenciales, password: e.target.value})} />
+
+            <input
+                type="text"
+                placeholder="Usuario (manolo)"
+                value={credenciales.Nombre}
+                onChange={e => setCredenciales({ ...credenciales, Nombre: e.target.value })}
+            />
+
+            <input
+                type="password"
+                placeholder="Clave (1234)"
+                value={credenciales.Cedula}
+                onChange={e => setCredenciales({ ...credenciales, Cedula: e.target.value })}
+            />
+
             <button onClick={entrar}>Entrar</button>
         </div>
     );
 };
+
 export default Login;

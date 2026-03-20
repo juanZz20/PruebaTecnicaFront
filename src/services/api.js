@@ -2,14 +2,21 @@ const BASE_URL = 'http://localhost:5150';
 
 
 export const apiService = {
-    login: async (user, password) => {
-        const response = await fetch(`${BASE_URL}/api/usuarios/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user, password })
-        });
-        return response.json();
-    },
+login: async (Nombre, Cedula) => {
+        const response = await fetch('http://localhost:5150/api/usuarios/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ Nombre: Nombre, Cedula: Cedula })
+    });
+
+    if (!response.ok) {
+        throw new Error("Usuario o contraseña incorrectos");
+    }
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+},
 
     listarUsuarios: async () => {
         const response = await fetch(`${BASE_URL}/api/usuarios`);
